@@ -1,0 +1,63 @@
+# I, Muskan, have watched all required parts above
+# Muskan: Import the required libraries
+import os  # Muskan
+from dotenv import load_dotenv  # Muskan
+from flask import Flask, flash, render_template, redirect, request, url_for  # Muskan
+from twilio.rest import Client  # Muskan
+
+# Muskan: Load environment variables from an env file
+load_dotenv()
+
+# Muskan: Create a Flask application
+app = Flask(__name__)
+
+# Muskan: Set a secret key for the Flask application
+app.secret_key = "ssssh don't tell anyone"
+
+# Muskan: Retrieve the Twilio API credentials from environment variables
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")  # Muskan
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")  # Muskan
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")  # Muskan
+
+# Muskan: Initialize the Twilio client
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+# Muskan: Define a function to get sent messages (Assuming you have a message storage)
+def get_sent_messages():
+    # TODO: Implement message retrieval from storage
+    messages = []  # Replace with actual messages
+    return messages
+
+# Muskan: Define a function to send a text message using Twilio
+def send_message(to, body):
+    # Use the Twilio client to send a message
+    message = client.messages.create(
+        body=body,
+        from_=TWILIO_PHONE_NUMBER,
+        to=to
+    )
+    return message
+
+# Muskan: Define a route to render the index page
+@app.route("/", methods=["GET"])
+def index():
+    messages = get_sent_messages()  # Muskan
+    return render_template("index.html", messages=messages)
+
+# Muskan: Define a route to add and send compliments
+@app.route("/add-compliment", methods=["POST"])
+def add_compliment():
+    sender = request.values.get('sender', 'Someone')  # Muskan
+    receiver = request.values.get("receiver", "Someone")  # Muskan
+    compliment = request.values.get('compliment', 'wonderful')  # Muskan
+    body = f"{sender} says: {receiver} is {compliment}. See more compliments at {request.url_root}"  # Muskan
+    to = request.values.get('to')  # Muskan
+
+    # Send the message using the send_message function
+    send_message(to, body)  # Muskan
+    flash('Your message was successfully sent')
+    return redirect(url_for('index'))
+
+# Muskan: Start the Flask application
+if __name__ == "__main__":
+    app.run()
